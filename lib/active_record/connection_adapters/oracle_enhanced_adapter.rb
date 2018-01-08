@@ -301,11 +301,7 @@ module ActiveRecord
       # Is used if +emulate_dates_by_column_name+ option is set to +true+.
       # Override this method definition in initializer file if different Date column recognition is needed.
       def self.is_date_column?(name, table_name = nil)
-        ActiveSupport::Deprecation.warn(<<-MSG.squish)
-          `self.is_date_column?` has been deprecated. Please use Rails attribute API.
-        MSG
-        return false
-        # name =~ /(^|_)date(_|$)/i
+        name =~ /(^|_)date(_|$)/i
       end
 
       # instance method uses at first check if column type defined at class level
@@ -339,10 +335,7 @@ module ActiveRecord
       # Is used if +emulate_integers_by_column_name+ option is set to +true+.
       # Override this method definition in initializer file if different Integer column recognition is needed.
       def self.is_integer_column?(name, table_name = nil)
-        ActiveSupport::Deprecation.warn(<<-MSG.squish)
-          `is_integer_column?` has been deprecated. Please use Rails attribute API.
-        MSG
-        return false
+        name =~ /(^|_)id$/i
       end
 
       ##
@@ -358,12 +351,8 @@ module ActiveRecord
       # Is used if +emulate_booleans_from_strings+ option is set to +true+.
       # Override this method definition in initializer file if different boolean column recognition is needed.
       def self.is_boolean_column?(name, sql_type, table_name = nil)
-        ActiveSupport::Deprecation.warn(<<-MSG.squish)
-          `is_boolean_column?` has been deprecated. Please use Rails attribute API.
-        MSG
-        return false
-        # return true if ["CHAR(1)","VARCHAR2(1)"].include?(sql_type)
-        # sql_type =~ /^VARCHAR2/ && (name =~ /_flag$/i || name =~ /_yn$/i)
+        return true if ["CHAR(1)","VARCHAR2(1)"].include?(sql_type)
+        sql_type =~ /^VARCHAR2/ && (name =~ /_flag$/i || name =~ /_yn$/i)
       end
 
       # How boolean value should be quoted to String.
@@ -1020,15 +1009,34 @@ module ActiveRecord
             row['data_default'] = false if (row['data_default'] == "N" && OracleEnhancedAdapter.emulate_booleans_from_strings)
           end
 
+          col_name      = oracle_downcase(row['name'])
           type_metadata = fetch_type_metadata(row['sql_type'])
-          new_column(oracle_downcase(row['name']),
-                           row['data_default'],
-                           type_metadata,
-                           row['nullable'] == 'Y',
-                           table_name,
-                           is_virtual,
-                           false,
-                           row['column_comment']
+
+          # If emulate flags are set then populate the AR attribute list for the matching columns
+          if OracleEnhancedAdapter.emulate_booleans
+            if (type_metadata.sql_type == "NUMBER(1)") || 
+                (OracleEnhancedAdapter.emulate_booleans_from_strings && 
+                 OracleEnhancedAdapter.is_boolean_column?(col_name, type_metadata.sql_type))
+              (@@attributes_to_define_after_schema_loads[col_name]||= [])[0] = :boolean
+            end
+          end
+          if (OracleEnhancedAdapter.emulate_integers_by_column_name && 
+              OracleEnhancedAdapter.is_integer_column?(col_name))
+            (@@attributes_to_define_after_schema_loads[col_name]||= [])[0] = :integer
+          end
+          if (OracleEnhancedAdapter.emulate_dates_by_column_name && 
+              OracleEnhancedAdapter.is_date_column?(col_name))
+            (@@attributes_to_define_after_schema_loads[col_name]||= [])[0] = :date
+          end
+
+          new_column(col_name,
+                     row['data_default'],
+                     type_metadata,
+                     row['nullable'] == 'Y',
+                     table_name,
+                     is_virtual,
+                     false,
+                     row['column_comment']
                     )
         end
       end
@@ -1211,13 +1219,6 @@ module ActiveRecord
           end
         end
 
-        if OracleEnhancedAdapter.emulate_booleans
-          if OracleEnhancedAdapter.emulate_booleans_from_strings
-            m.register_type %r(^VARCHAR2\(1\))i, ActiveRecord::OracleEnhanced::Type::Boolean.new
-          else
-            m.register_type %r(^NUMBER\(1\))i, Type::Boolean.new
-          end
-        end
       end
 
       def extract_limit(sql_type) #:nodoc:

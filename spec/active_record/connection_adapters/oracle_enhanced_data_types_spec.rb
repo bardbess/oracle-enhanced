@@ -36,8 +36,8 @@ describe "OracleEnhancedAdapter date type detection based on column names" do
 
   describe "/ DATE values from ActiveRecord model" do
     before(:each) do
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = false
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates = false
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = false
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates = false
       class ::TestEmployee < ActiveRecord::Base
         self.primary_key = "employee_id"
       end
@@ -62,30 +62,26 @@ describe "OracleEnhancedAdapter date type detection based on column names" do
     end
 
     it "should return Time value from DATE column if emulate_dates_by_column_name is false" do
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = false
-      class ::TestEmployee < ActiveRecord::Base
-        attribute :hire_date, :datetime
-      end
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = false
       create_test_employee
       expect(@employee.hire_date.class).to eq(Time)
     end
 
     it "should return Date value from DATE column if column name contains 'date' and emulate_dates_by_column_name is true" do
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = true
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = true
       create_test_employee
       expect(@employee.hire_date.class).to eq(Date)
     end
 
     it "should return Date value from DATE column with old date value if column name contains 'date' and emulate_dates_by_column_name is true" do
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = true
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = true
       create_test_employee(:today => Date.new(1900,1,1))
       expect(@employee.hire_date.class).to eq(Date)
     end
 
     it "should return Time value from DATE column if column name does not contain 'date' and emulate_dates_by_column_name is true" do
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = true
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = true
       class ::TestEmployee < ActiveRecord::Base
-        # set_date_columns :created_at
         attribute :created_at, :datetime
       end
       create_test_employee
@@ -94,30 +90,27 @@ describe "OracleEnhancedAdapter date type detection based on column names" do
 
     it "should return Date value from DATE column if emulate_dates_by_column_name is false but column is defined as date" do
       class ::TestEmployee < ActiveRecord::Base
-        # set_date_columns :hire_date
         attribute :hire_date, :date
       end
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = false
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = false
       create_test_employee
       expect(@employee.hire_date.class).to eq(Date)
     end
 
     it "should return Date value from DATE column with old date value if emulate_dates_by_column_name is false but column is defined as date" do
       class ::TestEmployee < ActiveRecord::Base
-        # set_date_columns :hire_date
         attribute :hire_date, :date
       end
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = false
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = false
       create_test_employee(:today => Date.new(1900,1,1))
       expect(@employee.hire_date.class).to eq(Date)
     end
 
     it "should return Time value from DATE column if emulate_dates_by_column_name is true but column is defined as datetime" do
       class ::TestEmployee < ActiveRecord::Base
-        # set_datetime_columns :hire_date
         attribute :hire_date, :datetime
       end
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = true
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = true
       create_test_employee
       expect(@employee.hire_date.class).to eq(Time)
       # change to current time with hours, minutes and seconds
@@ -129,7 +122,7 @@ describe "OracleEnhancedAdapter date type detection based on column names" do
     end
 
     it "should guess Date or Time value if emulate_dates is true" do
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates = true
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates = true
       class ::TestEmployee < ActiveRecord::Base
         attribute :hire_date, :date
         attribute :created_at, :datetime
@@ -201,13 +194,13 @@ describe "OracleEnhancedAdapter integer type detection based on column names" do
     end
 
     it "should return BigDecimal value from NUMBER column if emulate_integers_by_column_name is false" do
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_integers_by_column_name = false
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_integers_by_column_name = false
       create_employee2
       expect(@employee2.job_id.class).to eq(BigDecimal)
     end
 
     it "should return Integer value from NUMBER column if column name contains 'id' and emulate_integers_by_column_name is true" do
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_integers_by_column_name = true
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_integers_by_column_name = true
       class ::Test2Employee < ActiveRecord::Base
         attribute :job_id, :integer
       end
@@ -216,20 +209,19 @@ describe "OracleEnhancedAdapter integer type detection based on column names" do
     end
 
     it "should return Integer value from NUMBER column with integer value using _before_type_cast method" do
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_integers_by_column_name = true
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_integers_by_column_name = true
       create_employee2
       expect(@employee2.job_id_before_type_cast).to be_a(Integer)
     end
 
     it "should return BigDecimal value from NUMBER column if column name does not contain 'id' and emulate_integers_by_column_name is true" do
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_integers_by_column_name = true
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_integers_by_column_name = true
       create_employee2
       expect(@employee2.salary.class).to eq(BigDecimal)
     end
 
     it "should return Integer value from NUMBER column if column specified in set_integer_columns" do
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_integers_by_column_name = false
-      # Test2Employee.set_integer_columns :job_id
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_integers_by_column_name = false
       class ::Test2Employee < ActiveRecord::Base
         attribute :job_id, :integer
       end
@@ -238,13 +230,13 @@ describe "OracleEnhancedAdapter integer type detection based on column names" do
     end
 
     it "should return Boolean value from NUMBER(1) column if emulate booleans is used" do
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_booleans = true
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_booleans = true
       create_employee2
       expect(@employee2.is_manager.class).to eq(TrueClass)
     end
 
     it "should return Integer value from NUMBER(1) column if emulate booleans is not used" do
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_booleans = false
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_booleans = false
       class ::Test2Employee < ActiveRecord::Base
         attribute :is_manager, :integer
       end
@@ -253,8 +245,7 @@ describe "OracleEnhancedAdapter integer type detection based on column names" do
     end
 
     it "should return Integer value from NUMBER(1) column if column specified in set_integer_columns" do
-      # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_booleans = true
-      # Test2Employee.set_integer_columns :is_manager
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_booleans = true
       class ::Test2Employee < ActiveRecord::Base
         attribute :is_manager, :integer
       end
@@ -300,7 +291,7 @@ describe "OracleEnhancedAdapter boolean type detection based on string column ty
   after(:all) do
     @conn.execute "DROP TABLE test3_employees"
     @conn.execute "DROP SEQUENCE test3_employees_seq"
-    # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_booleans_from_strings = false
+    ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_booleans_from_strings = false
   end
 
   before(:each) do
@@ -407,7 +398,6 @@ describe "OracleEnhancedAdapter boolean type detection based on string column ty
 
     it "should return boolean value from VARCHAR2 boolean column if column specified in set_boolean_columns" do
       ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_booleans_from_strings = true
-      # Test3Employee.set_boolean_columns :test_boolean
       class ::Test3Employee < ActiveRecord::Base
         attribute :test_boolean, :boolean
       end
@@ -427,7 +417,6 @@ describe "OracleEnhancedAdapter boolean type detection based on string column ty
 
     it "should return string value from VARCHAR2 column with boolean column name but is specified in set_string_columns" do
       ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_booleans_from_strings = true
-      # Test3Employee.set_string_columns :active_flag
       class ::Test3Employee < ActiveRecord::Base
         attribute :active_flag, :string
       end
@@ -598,8 +587,8 @@ describe "OracleEnhancedAdapter date and timestamp with different NLS date forma
   end
 
   before(:each) do
-    # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates = false
-    # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = false
+    ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates = false
+    ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = false
     class ::TestEmployee < ActiveRecord::Base
       self.primary_key = "employee_id"
     end
@@ -625,7 +614,7 @@ describe "OracleEnhancedAdapter date and timestamp with different NLS date forma
   end
 
   it "should return Time value from DATE column if emulate_dates_by_column_name is false" do
-    # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = false
+    ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = false
     ActiveRecord::Base.default_timezone = :local
     class ::TestEmployee < ActiveRecord::Base
       attribute :hire_date, :datetime
@@ -636,14 +625,14 @@ describe "OracleEnhancedAdapter date and timestamp with different NLS date forma
   end
 
   it "should return Date value from DATE column if column name contains 'date' and emulate_dates_by_column_name is true" do
-    # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = true
+    ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = true
     create_test_employee
     expect(@employee.hire_date.class).to eq(Date)
     expect(@employee.hire_date).to eq(@today)
   end
 
   it "should return Time value from DATE column if column name does not contain 'date' and emulate_dates_by_column_name is true" do
-    # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = true
+    ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = true
     class ::TestEmployee < ActiveRecord::Base
       attribute :created_at, :datetime
     end
@@ -703,7 +692,7 @@ describe "OracleEnhancedAdapter assign string to :date and :datetime columns" do
   end
 
   before(:each) do
-    # ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = true
+    ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_dates_by_column_name = true
   end
 
   after(:each) do
