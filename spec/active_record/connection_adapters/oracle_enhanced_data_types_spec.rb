@@ -425,6 +425,42 @@ describe "OracleEnhancedAdapter boolean type detection based on string column ty
       expect(@employee3.test_boolean_before_type_cast).to eq(nil)
     end
 
+    it "should set the column type to :boolean if column AR attribute is :boolean and emulate is true" do
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_booleans_from_strings = true
+      class ::Test3Employee < ActiveRecord::Base
+        attribute :test_boolean, :boolean
+      end
+      expect(Test3Employee.new(test_boolean: 'true').test_boolean.class).to be TrueClass
+      expect(Test3Employee.columns_hash['test_boolean'].type).to be :string
+    end
+
+    it "should set the column type to :string if column AR attribute is :string and emulate is true" do
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_booleans_from_strings = true
+      class ::Test3Employee < ActiveRecord::Base
+        attribute :test_boolean, :string
+      end
+      expect(Test3Employee.new(test_boolean: 'true').test_boolean.class).to be String
+      expect(Test3Employee.columns_hash['test_boolean'].type).to be :string
+    end
+
+    it "should set the column type to :boolean if column AR attribute is :boolean and emulate is false" do
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_booleans_from_strings = false
+      class ::Test3Employee < ActiveRecord::Base
+        attribute :test_boolean, :boolean
+      end
+      expect(Test3Employee.new(test_boolean: 'true').test_boolean.class).to be TrueClass
+      expect(Test3Employee.columns_hash['test_boolean'].type).to be :string
+    end
+
+    it "should set the column type to :string if column AR attribute is :string and emulate is false" do
+      ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_booleans_from_strings = false
+      class ::Test3Employee < ActiveRecord::Base
+        attribute :test_boolean, :string
+      end
+      expect(Test3Employee.new(test_boolean: 'true').test_boolean.class).to be String
+      expect(Test3Employee.columns_hash['test_boolean'].type).to be :string
+    end
+
     it "should return string value from VARCHAR2 column with boolean column name but is specified in set_string_columns" do
       ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter.emulate_booleans_from_strings = true
       # Test3Employee.set_string_columns :active_flag

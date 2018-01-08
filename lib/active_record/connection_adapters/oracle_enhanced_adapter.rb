@@ -1213,10 +1213,9 @@ module ActiveRecord
 
         if OracleEnhancedAdapter.emulate_booleans
           if OracleEnhancedAdapter.emulate_booleans_from_strings
-            m.register_type %r(^VARCHAR2\(1\))i, ActiveRecord::OracleEnhanced::Type::Boolean.new
-          else
-            m.register_type %r(^NUMBER\(1\))i, Type::Boolean.new
+            m.register_type %r(^VARCHAR2\(1\))i, ActiveRecord::OracleEnhanced::Type::StringBoolean.new
           end
+          m.register_type %r(^NUMBER\(1\))i, Type::Boolean.new
         end
       end
 
@@ -1358,6 +1357,7 @@ require 'active_record/oracle_enhanced/type/text'
 
 # Add OracleEnhanced::Type::Boolean
 require 'active_record/oracle_enhanced/type/boolean'
+require 'active_record/oracle_enhanced/type/string_boolean'
 
 # To use :boolean type for Attribute API, each type needs registered explicitly.
 ActiveRecord::Type.register(:boolean, ActiveRecord::OracleEnhanced::Type::Boolean, adapter: :oracleenhanced)
